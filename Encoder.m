@@ -9,11 +9,12 @@ classdef Encoder < handle
         embeddingData
         embeddingKey
         encryptedData
+        encrypter       %Encrypter
         result          %Image
     end
     
     methods(Static)
-        function obj = Encoder()
+        function obj = Encoder(Encrypterr)
             %ENCODER Construct an instance of this class
             %   Detailed explanation goes here
             ORG = Image(Encoder.loadImage());
@@ -22,6 +23,7 @@ classdef Encoder < handle
             obj.imageKey = Image(key);
             obj.embeddingData = Encoder.loadEmbedding();
             obj.embeddingKey = Encoder.generateKey(1, ORG.Nr*ORG.Nc*0.75, 1);
+            obj.encrypter = Encrypterr;
         end
         
         function ORG = loadImage()
@@ -78,8 +80,8 @@ classdef Encoder < handle
 
     methods(Access = public)
         function apply(encoder)
-            encoder.encryptedImage = Image(encoder.encryption(encoder.originalImage.image, encoder.imageKey.image));
-            encoder.encryptedData = encoder.encryption(encoder.embeddingData, encoder.embeddingKey);
+            encoder.encryptedImage = Image(encoder.encrypter.encrypt(encoder.originalImage.image, encoder.imageKey.image));
+            encoder.encryptedData = encoder.encrypter.encrypt(encoder.embeddingData, encoder.embeddingKey);
             encoder.dataEmbedding();
         end
     end
