@@ -3,26 +3,12 @@ classdef Encoder < handle
     %   Detailed explanation goes here
     
     properties
-        originalImage   %Image
-        imageKey        %Image
-        encryptedImage  %Image
-        embeddingData
-        embeddingKey
-        encryptedData
         encrypter       %Encrypter
-        result          %Image
     end
     
     methods(Static)
         function obj = Encoder(Encrypterr)
             %ENCODER Construct an instance of this class
-            %   Detailed explanation goes here
-            ORG = Image(Encoder.loadImage());
-            obj.originalImage = ORG;
-            key = Encoder.generateKey(ORG.Nr, ORG.Nc, 8);
-            obj.imageKey = Image(key);
-            obj.embeddingData = Encoder.loadEmbedding();
-            obj.embeddingKey = Encoder.generateKey(1, ORG.Nr*ORG.Nc*0.75, 1);
             obj.encrypter = Encrypterr;
         end
         
@@ -58,33 +44,31 @@ classdef Encoder < handle
             key = reshape(uint8(round(rand(1, Nr*Nc)*(2^Nb-1))), Nr, Nc);
         end
 
-        function ENC = encryption(ORG, key)
-            ENC = double(bitxor(uint8(ORG), uint8(key)));
+        function result = dataEmbedding(img, embedding)
+            [Nr, Nc] = size(img);
+            EMB2=reshape(embedding(1:Nr*Nc/4),Nr/2,Nc/2);
+            EMB3=reshape(embedding(Nr*Nc/4+1:Nr*Nc/2),Nr/2,Nc/2);
+            EMB4=reshape(embedding(Nr*Nc/2+1:3*Nr*Nc/4),Nr/2,Nc/2); 
+            result = double(img);
+            result(1:2:end,2:2:end)=EMB2*128+mod(result(1:2:end,2:2:end),128);
+            result(2:2:end,1:2:end)=EMB3*128+mod(result(2:2:end,1:2:end),128);
+            result(2:2:end,2:2:end)=EMB4*128+mod(result(2:2:end,2:2:end),128);       
         end
         
     end
 
-    methods(Access = private)
-        function dataEmbedding(encoder)
-            Nr = encoder.originalImage.Nr;
-            Nc = encoder.originalImage.Nc;
-            EMB2=reshape(encoder.encryptedData(1:Nr*Nc/4),Nr/2,Nc/2);
-            EMB3=reshape(encoder.encryptedData(Nr*Nc/4+1:Nr*Nc/2),Nr/2,Nc/2);
-            EMB4=reshape(encoder.encryptedData(Nr*Nc/2+1:3*Nr*Nc/4),Nr/2,Nc/2);         
-            encoder.result = Image(double(encoder.encryptedImage.image));
-            encoder.result.image(1:2:end,2:2:end)=EMB2*128+mod(encoder.result.image(1:2:end,2:2:end),128);
-            encoder.result.image(2:2:end,1:2:end)=EMB3*128+mod(encoder.result.image(2:2:end,1:2:end),128);
-            encoder.result.image(2:2:end,2:2:end)=EMB4*128+mod(encoder.result.image(2:2:end,2:2:end),128);       
-        end
-    end
-
     methods(Access = public)
-        function apply(encoder)
-            encoder.encryptedImage = Image(encoder.encrypter.encrypt(encoder.originalImage.image, encoder.imageKey.image));
-            encoder.encryptedData = encoder.encrypter.encrypt(encoder.embeddingData, encoder.embeddingKey);
-            encoder.dataEmbedding();
+        function [imageKey, embeddingKey] = apply(encoder)
+            org = encoder.loadImage();
+            [Nr, Nc] = size(org);
+            imageKey = encoder.generateKey(Nr, Nc, 8);
+            imageEnc = encoder.encrypter.encrypt(org, imageKey);
+            emb = encoder.loadEmbedding();
+            embeddingKey = encoder.generateKey(1, Nr*Nc*0.75, 1);
+            embeddingEnc = encoder.encrypter.encrypt(emb, embeddingKey);
+            result = encoder.dataEmbedding(imageEnc, embeddingEnc);
+            imwrite(result, "result.bmp")
         end
     end
-
 end
 
