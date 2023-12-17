@@ -11,26 +11,6 @@ classdef Encoder < handle
             %ENCODER Construct an instance of this class
             obj.encrypter = Encrypterr;
         end
-        
-        function ORG = loadImage()
-            [filename,pathname]=uigetfile({'*.bmp; *.tif','(*.bmp);(*.tif)';},'打開圖片');
-            if isequal(filename,0)
-               disp('Image selection cancelled.');
-               return;
-            else
-               disp(['Image selected: ', fullfile(pathname, filename)])
-            end
-            
-            IMG=imread([pathname,filename]);  
-            DIM=size(IMG);
-            if length(DIM)==3
-                ORG=rgb2gray(IMG);
-            elseif length(DIM)==2
-                ORG=IMG;
-            else
-                disp('Image Loading error.');
-            end
-        end
 
         function EMB = loadEmbedding()
             fid=fopen('book.txt');
@@ -58,8 +38,8 @@ classdef Encoder < handle
     end
 
     methods(Access = public)
-        function [imageKey, embeddingKey] = apply(encoder)
-            org = encoder.loadImage();
+        function [result, imageKey, embeddingKey] = apply(encoder)
+            org = Image.loadImage();
             [Nr, Nc] = size(org);
             imageKey = encoder.generateKey(Nr, Nc, 8);
             imageEnc = encoder.encrypter.encrypt(org, imageKey);
@@ -67,7 +47,7 @@ classdef Encoder < handle
             embeddingKey = encoder.generateKey(1, Nr*Nc*0.75, 1);
             embeddingEnc = encoder.encrypter.encrypt(emb, embeddingKey);
             result = encoder.dataEmbedding(imageEnc, embeddingEnc);
-            imwrite(result, "result.bmp")
+            imwrite(uint8(result), "result.png")
         end
     end
 end
