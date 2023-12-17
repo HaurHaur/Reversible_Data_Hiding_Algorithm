@@ -12,7 +12,12 @@ classdef test
         end
         
         function test_decoder()
-
+            encrypter = xorEncrypter;
+            encoder = Encoder(encrypter);
+            [result, key1, ~] = encoder.apply();
+            predictor = bilinearPredictor;
+            decoder = Decoder(encrypter, predictor, 0);
+            data = decoder.apply(result, key1);
         end
 
         function test_encryption()

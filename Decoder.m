@@ -17,9 +17,11 @@ classdef Decoder < handle
 
         function result = apply(varargin)
             if nargin==3
-                decoder=varargin{1}; org=varargin{2}; key=varargin{3};
-                if(size(org) ~= size(key))                   
-                    result = decoder.extractData(org, key);
+                decoder=varargin{1}; enc=varargin{2}; key=varargin{3};
+                if(size(enc) ~= size(key))                   
+                    result = decoder.extractData(enc, key);
+                else
+                    result = decoder.predictImage(enc, key);
                 end
             end
         end
@@ -34,7 +36,13 @@ classdef Decoder < handle
             result(Nr*Nc/2+1:3*Nr*Nc/4) = bitshift(reshape(org(2:2:end,2:2:end), 1, Nr*Nc/4), -7);
             result = decoder.encrypter.decrypt(result, key);
             result = result';
-        end
+       end
+
+       function result = predictImage(decoder, enc, key)
+            org = decoder.encrypter.decrypt(enc, key);
+            result = decoder.predictors.apply(org);
+            imshow(result);
+       end
     end
 
 end

@@ -2,7 +2,7 @@ classdef bilinearPredictor < Predictor
     %BILINEARPREDICTOR Summary of this class goes here
     %   Detailed explanation goes here
        
-    methods        
+    methods(Static)        
         function result = apply(enc)
            [Nc, Nr] = size(enc);
             x = enc(1:2:end,1:2:end); x2 = enc(2:2:end,1:2:end);
@@ -15,7 +15,7 @@ classdef bilinearPredictor < Predictor
 
             result = uint8(zeros(Nr,Nc));
             result(1:2:end,1:2:end) = z1; 
-            y2 = pred(z2,x2); y3 = pred(z3,x3); y4 = pred(z4,x4);
+            y2 = Predictor.errorCorrection(z2,x2); y3 = Predictor.errorCorrection(z3,x3); y4 = Predictor.errorCorrection(z4,x4);
             result(2:2:end,1:2:end) = y2; result(1:2:end,2:2:end) = y3; result(2:2:end,2:2:end) = y4;            
         end
     end

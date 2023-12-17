@@ -15,10 +15,10 @@ classdef Predictor < handle
             tmp = mod(org, 128);            
             for i = 1:nr
                 for j = 1:nc
-                    result(i,j) = tmp(i, j) + setMSB(tmp, enc, i, j);
+                    result(i,j) = tmp(i, j) + Predictor.setMSB(tmp, enc, i, j);
                 end
             end            
-            result = uint8(y);
+            result = uint8(result);
         end
 
         function msb = setMSB(tmp, enc, i, j)
