@@ -5,8 +5,10 @@ classdef test
     end
     
     methods(Static)
-        function test_encoder()
-                    
+        function [result, key1, key2] = test_encoder()
+            encrypter = xorEncrypter;
+            encoder = Encoder(encrypter);
+            [result, key1, key2] = encoder.apply();
         end
         
         function test_decoder()
@@ -17,8 +19,12 @@ classdef test
 
         end
 
-        function test_dataHiding()
-
+        function data = test_dataHiding()
+            encrypter = xorEncrypter;
+            encoder = Encoder(encrypter);
+            [result, key1, key2] = encoder.apply();
+            decoder = Decoder(encrypter, 0, 0);
+            data = decoder.apply(result, key2);
         end
     end
 end
