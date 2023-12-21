@@ -3,20 +3,19 @@ classdef Encoder < handle
     %   Detailed explanation goes here
     
     properties
-        encrypter       %Encrypter
+        encrypter
     end
     
     methods(Static)
         function obj = Encoder(Encrypterr)
-            %ENCODER Construct an instance of this class
             obj.encrypter = Encrypterr;
         end
 
         function EMB = loadEmbedding()
             fid=fopen('book.txt');
-            data=98304;
+            data=196608;
             emb=fread(fid,data,'ubit1');
-            EMB=[emb',emb'];
+            EMB=emb';
             fclose(fid);
         end
 
@@ -38,8 +37,9 @@ classdef Encoder < handle
     end
 
     methods(Access = public)
-        function [result, imageKey, embeddingKey] = apply(encoder)
+        function [result, imageKey, embeddingKey, coefficient] = apply(encoder)
             org = Image.loadImage();
+            coefficient = dpcmPredictor.dpcmCoefficient(org);
             [Nr, Nc] = size(org);
             imageKey = encoder.generateKey(Nr, Nc, 8);
             imageEnc = encoder.encrypter.encrypt(org, imageKey);
@@ -47,7 +47,6 @@ classdef Encoder < handle
             embeddingKey = encoder.generateKey(1, Nr*Nc*0.75, 1);
             embeddingEnc = encoder.encrypter.encrypt(emb, embeddingKey);
             result = encoder.dataEmbedding(imageEnc, embeddingEnc);
-            imwrite(uint8(result), "result.png")
         end
     end
 end
