@@ -9,7 +9,7 @@ classdef Image < handle
                disp(['Image selected: ', fullfile(pathname, filename)])
             end
             
-            IMG=imread([pathname,filename]);  
+            IMG=imread([pathname,filename]); 
             DIM=size(IMG);
             if length(DIM)==3
                 ORG=rgb2gray(IMG);
@@ -20,8 +20,14 @@ classdef Image < handle
             end
         end
 
-        function showImage(img)
-            figure,imshow(uint8(img));
+        function showImage(name, img)
+            figure('Name', name, 'NumberTitle','off'),imshow(uint8(img));
+        end
+
+        function writeData(name, data)
+            fid=fopen(name, 'w');
+            fwrite(fid, data, 'ubit1');
+            fclose(fid);
         end
 
     end
