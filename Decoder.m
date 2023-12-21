@@ -16,19 +16,20 @@ classdef Decoder < handle
         end
 
         function result = apply(varargin)
-            if nargin==3
-                decoder=varargin{1}; enc=varargin{2}; key=varargin{3};
+            if nargin==4
+                decoder=varargin{1}; enc=varargin{2}; coefficient=varargin{3}; key=varargin{4};
                 if(size(enc) ~= size(key))                   
                     result = decoder.extractData(enc, key);
                 else
-                    result = decoder.predictImage(enc, key);
+                    result = decoder.predictImage(enc, coefficient, key);
                 end
+            elseif nargin==5
+                decoder=varargin{1}; enc=varargin{2}; coefficient=varargin{3}; imageKey=varargin{4}; dataKey=varargin{5};
+                result = [decoder.predictImage(enc, coefficient, imageKey), decoder.extractData(enc, dataKey)];
             end
         end
 
        function result = extractData(decoder, org, key)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
             [Nr, Nc] = size(org);
             result = zeros(1, Nr*Nc*3/4);
             result(1:Nr*Nc*1/4) = bitshift(reshape(org(1:2:end,2:2:end), 1, Nr*Nc/4), -7);
@@ -38,10 +39,13 @@ classdef Decoder < handle
             result = result';
        end
 
-       function result = predictImage(decoder, enc, key)
+       function result = predictImage(decoder, enc, coefficient, key)
             org = decoder.encrypter.decrypt(enc, key);
-            result = decoder.predictors.apply(org);
-            imshow(result);
+            if isa(decoder.predictors,'dpcmPredictor')
+                result = decoder.predictors.apply(org, coefficient);
+            else
+                result = decoder.predictors.apply(org);
+            end
        end
     end
 
