@@ -37,7 +37,7 @@ classdef Encoder < handle
     end
 
     methods(Access = public)
-        function [result, imageKey, embeddingKey, coefficient] = apply(encoder)
+        function [org, result, imageKey, embeddingKey, coefficient] = apply(encoder)
             org = Image.loadImage();
             coefficient = dpcmPredictor.dpcmCoefficient(org);
             [Nr, Nc] = size(org);

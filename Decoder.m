@@ -5,14 +5,12 @@ classdef Decoder < handle
     properties
         predictors
         encrypter
-        evaluator
     end
     
     methods
-        function obj = Decoder(encrypterr, predictorss, evaluatorr)
+        function obj = Decoder(encrypterr, predictorss)
             obj.encrypter = encrypterr;
             obj.predictors = predictorss;
-            obj.evaluator = evaluatorr;
         end
 
         function result = apply(varargin)
@@ -41,12 +39,20 @@ classdef Decoder < handle
 
        function result = predictImage(decoder, enc, coefficient, key)
             org = decoder.encrypter.decrypt(enc, key);
-            if isa(decoder.predictors,'dpcmPredictor')
-                result = decoder.predictors.apply(org, coefficient);
-            else
-                result = decoder.predictors.apply(org);
+            result = org;
+            for i=1:length(decoder.predictors)
+                if isa(decoder.predictors{i},'dpcmPredictor')
+                    result = decoder.predictors{i}.apply(result, coefficient);
+                else
+                    result = decoder.predictors{i}.apply(result);
+                end
+                if i ~= length(decoder.predictors)
+                    coefficient = dpcmPredictor.dpcmCoefficient(result);
+                end
             end
+
        end
+
     end
 
 end
