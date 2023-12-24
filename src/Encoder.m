@@ -8,15 +8,6 @@ classdef Encoder < handle
             obj.encrypter = Encrypterr;
         end
 
-        function EMB = loadEmbedding()
-            [filename,pathname]=uigetfile({'*.txt'},'Load Embedding');
-            fid=fopen([pathname,filename]);
-            data=196608;
-            emb=fread(fid,data,'ubit1');
-            EMB=emb';
-            fclose(fid);
-        end
-
         function key = generateKey(Nr, Nc, Nb)
             key = reshape(uint8(round(rand(1, Nr*Nc)*(2^Nb-1))), Nr, Nc);
         end
@@ -41,7 +32,7 @@ classdef Encoder < handle
             [Nr, Nc] = size(org);
             imageKey = encoder.generateKey(Nr, Nc, 8);
             imageEnc = encoder.encrypter.encrypt(org, imageKey);
-            emb = encoder.loadEmbedding();
+            emb = Image.loadEmbedding();
             embeddingKey = encoder.generateKey(1, Nr*Nc*0.75, 1);
             embeddingEnc = encoder.encrypter.encrypt(emb, embeddingKey);
             result = encoder.dataEmbedding(imageEnc, embeddingEnc);

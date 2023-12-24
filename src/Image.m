@@ -23,6 +23,15 @@ classdef Image < handle
         function showImage(name, img)
             figure('Name', name, 'NumberTitle','off'),imshow(uint8(img));
         end
+        
+        function EMB = loadEmbedding()
+            [filename,pathname]=uigetfile({'*.txt'},'Load Embedding');
+            fid=fopen([pathname,filename]);
+            data=196608;
+            emb=fread(fid,data,'ubit1');
+            EMB=emb';
+            fclose(fid);
+        end
 
         function writeData(name, data)
             fid=fopen(name, 'w');
