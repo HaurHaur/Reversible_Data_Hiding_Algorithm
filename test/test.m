@@ -1,9 +1,6 @@
 classdef test
     %Unit testing
-    
-    properties
-    end
-    
+        
     methods(Static)
         function [result, key1, key2, coefficient] = test_encoder()
             encrypter = xorEncrypter;
