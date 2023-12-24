@@ -1,4 +1,4 @@
-classdef xorEncrypter < Encrypte        
+classdef xorEncrypter < Encrypter        
     methods(Static)
         function enc = encrypt(img, key)
             enc = double(bitxor(uint8(img), uint8(key)));

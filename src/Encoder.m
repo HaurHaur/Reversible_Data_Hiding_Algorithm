@@ -9,7 +9,8 @@ classdef Encoder < handle
         end
 
         function EMB = loadEmbedding()
-            fid=fopen('book.txt');
+            [filename,pathname]=uigetfile({'*.txt'},'Load Embedding');
+            fid=fopen([pathname,filename]);
             data=196608;
             emb=fread(fid,data,'ubit1');
             EMB=emb';
